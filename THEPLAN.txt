@@ -1,0 +1,36 @@
+-------- THE PLAN --------
+
+#### Logical structure of the code
+    Start with an input file like in QE. This file will set the variables in the calculation (keep variable voluntary):
+        * Dimensionality of N
+        * Form of the initial condition
+        * Integration method (MC/Simpson)
+        * Order of RK method?
+        * The grid
+        * Order of the BK equation (LO/NLO)
+
+#### File system
+    * Kernels
+    * Initial condition
+    * Running coupling
+    * Integrators
+    * Interpolation
+    * I/O functions
+
+#### Remarks:
+    * Git and versioning!
+    * Make the code parallelizable on the highest level
+    * WRITE IT SUCH THAT ALL THE VARIABLES ARE VOLUNTARY! EXPANDING THE CODE WILL NOT LEAD TO MALFUNCTION
+
+#### Does it scale for multiple dimentions?
+    * Need to keep vectorized
+    * Need to keep general interpolation methods
+    * Needs to work for:
+        1. N(r,Y)
+        2. N(r, b, Y)
+        3. N(r, b, theta, Y)
+        4. N(r, b, theta, phi, Y)
+
+QUESTIONS:
+    * How to paralellize?
+    * Cartesian or polar?
