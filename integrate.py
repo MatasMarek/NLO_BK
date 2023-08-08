@@ -168,7 +168,7 @@ def integrate_MC(calculation, x, y):
 
         evaluated_points_for_z_integration, evaluated_points_for_wz_integration = integrand(calculation)
         integral_over_z = normalization * np.sum(jacobian_for_z_integration * evaluated_points_for_z_integration) / no_of_samples
-        integral_over_wz = normalization * np.sum(jacobian_for_wz_integration * evaluated_points_for_wz_integration) / no_of_samples # TODO: Check by hand that there should not be normalization squared
+        integral_over_wz = normalization**2 * np.sum(jacobian_for_wz_integration * evaluated_points_for_wz_integration) / no_of_samples
         return integral_over_z + integral_over_wz
     else:
         if calculation['order_of_rk'] == 1:

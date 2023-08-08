@@ -115,7 +115,7 @@ def make_step(calculation):
             calculation['N_to_add'][r_ind] = N_to_add_r_ind
 
     calculation['N'][y_ind] = calculation['N'][y_ind - 1] + calculation['N_to_add']
-    
+
     #  CONVERGENCE CONDITION
     # DEBUG CHECK FOR NEGATIVE VALUES IN N
     if (calculation['N'][y_ind] < 0.).any():
@@ -136,10 +136,10 @@ def run_calculation(calculation):
     for y_ind in range(1, len(calculation['grid']['grid_in_Y'])):
         calculation['y_ind'] = y_ind
         calculation = make_step(calculation)
-        # if (y_ind) % 10 == 0:
-            # save_calculation(calculation)
+        if (y_ind) % 10 == 0:
+            save_calculation(calculation)
         print('Y', round(calculation['grid']['grid_in_Y'][y_ind], 2), "--- %s seconds ---" % round(time.time() - start_time, 1))
-    # save_calculation(calculation)
+    save_calculation(calculation)
     return
 
 # TODO: Porozdelovat kod a ucesat ho
@@ -156,6 +156,4 @@ def run_calculation(calculation):
 #  * Get some convergence estimates for 2D ciBK
 #  * Map out the change in the proton for a small dipole size all bs and phis. Average over thetas.
 
-# TODO: Check by hand that there should not be normalization squared in the integration over wz. Test in unit function.
-# TODO: Setup git
 
