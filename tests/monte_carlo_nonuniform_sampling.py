@@ -80,13 +80,13 @@ def both_combined_the_Mareks_way():
 
 
 def both_combined_the_Mareks_way_2D():
-    no_of_samples = 100000
+    no_of_samples = 1000000
     steps_in_integrand_theta = 20
     integral = 0.
 
     shift = 2. * np.pi / steps_in_integrand_theta / 2.  # to avoid double counting and y-axis with z and w.
     integrand_angles = np.linspace(-np.pi + shift, np.pi - shift, steps_in_integrand_theta)
-    integrand_radii = np.logspace(-5., 1., 20000)
+    integrand_radii = np.logspace(-7., 2., 20000)
     integrand_cartesian_coods = np.zeros((len(integrand_angles) * len(integrand_radii), 2))
     for radius_ind in range(len(integrand_radii)):
         for theta_ind in range(len(integrand_angles)):
@@ -112,7 +112,7 @@ def both_combined_the_Mareks_way_2D():
     probability_normalization = probability_normalization_polar * probability_normalization_log
 
     integral = integral * probability_normalization**2 / no_of_samples
-    print('True integral should be pi*100**2 = 98696; MC:', integral)
+    print('True integral should be pi*10000**2 = 98696; MC:', integral/986960000.)
 
 
 # polar_MC(polar=True)

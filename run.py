@@ -1,5 +1,5 @@
 import numpy as np
-from io_bk import print_out_calculation, save_calculation
+from io_bk import save_calculation
 from runge_kutta import runge_kutta
 import time
 from joblib import Parallel, delayed
@@ -119,10 +119,10 @@ def make_step(calculation):
     #  CONVERGENCE CONDITION
     # DEBUG CHECK FOR NEGATIVE VALUES IN N
     if (calculation['N'][y_ind] < 0.).any():
-        print(100.*np.sum(calculation['N'][y_ind] < 0.)/calculation['N'][y_ind].size, '% of negative values in N')
+        print(100.*np.sum(calculation['N'][y_ind] < 0.)/calculation['N'][y_ind].size, '% of negative values in N with a min of', np.min(calculation['N'][y_ind]))
         calculation['N'][y_ind][calculation['N'][y_ind] < 0.] = 0.
     if (calculation['N'][y_ind] > 1.).any():
-        print(100.*np.sum(calculation['N'][y_ind] > 1.)/calculation['N'][y_ind].size, ' % of values above 1 in N')
+        print(100.*np.sum(calculation['N'][y_ind] > 1.)/calculation['N'][y_ind].size, ' % of values above 1 in N with a max of', np.max(calculation['N'][y_ind]))
         calculation['N'][y_ind][calculation['N'][y_ind] > 1.] = 1.
     # DEBUG CHECK FOR NEGATIVE VALUES IN N
     return calculation
@@ -156,4 +156,6 @@ def run_calculation(calculation):
 #  * Get some convergence estimates for 2D ciBK
 #  * Map out the change in the proton for a small dipole size all bs and phis. Average over thetas.
 
+# It might very well be, that the unwanted unstable behavior for NLO comes from points when w and z are too close. Kernels diverge then.
+# TODO: I DID NOT HAVE ENOUGH POINTS IN INTEGRATION OVER r!, Change that in all inputs and add a check for that
 

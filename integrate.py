@@ -66,12 +66,12 @@ def rs_bs_and_variables_for_N(calculation, x, y, no_of_samples, array_of_z=None)
             print('Simpson for NLO not implemented')
             exit(1)
         random_indexes_w = np.random.randint(0, len(integrand_cartesian_coods), no_of_samples)  # w
-
         # CONVERGENCE CONDITION: Fix that you dont have w and z the same since the integral then does not work
         same_elements_in_z_and_w = random_indexes_z == random_indexes_w
         while (same_elements_in_z_and_w).any():
             random_indexes_w[same_elements_in_z_and_w] = np.random.randint(0, len(integrand_cartesian_coods), len(random_indexes_w[same_elements_in_z_and_w]))
             same_elements_in_z_and_w = random_indexes_z == random_indexes_w
+
 
         array_of_w = integrand_cartesian_coods[random_indexes_w]
 
@@ -150,7 +150,6 @@ def integrate_MC(calculation, x, y):
     calculation = rs_bs_and_variables_for_N(calculation, x, y, no_of_samples)
     calculation = get_Ns(calculation)
 
-
     # Probability distribution normalization
     probability_normalization_polar = 2. * np.pi
     probability_normalization_log = np.log10(calculation['grid']['grid_in_integrand_radius'][-1]) - np.log10(calculation['grid']['grid_in_integrand_radius'][0])
@@ -167,8 +166,10 @@ def integrate_MC(calculation, x, y):
         jacobian_for_wz_integration = np.squeeze(jacobian_for_wz_integration)
 
         evaluated_points_for_z_integration, evaluated_points_for_wz_integration = integrand(calculation)
+
         integral_over_z = normalization * np.sum(jacobian_for_z_integration * evaluated_points_for_z_integration) / no_of_samples
         integral_over_wz = normalization**2 * np.sum(jacobian_for_wz_integration * evaluated_points_for_wz_integration) / no_of_samples
+
         return integral_over_z + integral_over_wz
     else:
         if calculation['order_of_rk'] == 1:

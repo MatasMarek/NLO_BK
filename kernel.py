@@ -46,15 +46,12 @@ def Kb(calculation):
     var = calculation['variables_for_N']
     fraction = alpha_s_squared(np.array([var['xy']['rsq']])) * c.Nc**2/(8. * np.pi**4)
     in_front_of_bracket = -2./var['wz']['rsq']**2
-    # TODO: The minus sign above makes the NLO diverge. -> It dominated the Kernel and makes it negative
     bracket_first_up = var['zx']['rsq']*var['wy']['rsq'] + var['wx']['rsq']*var['zy']['rsq'] - 4.*var['xy']['rsq']*var['wz']['rsq']
 
     bracket_first_down = var['wz']['rsq']**2 * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'])
     bracket_first = bracket_first_up/bracket_first_down
-
     # TODO Ask Honza; This Kernel diverges for z and w on the y axis. Then the zx = zy and wx = wy
     #  (Only for the 2D case) How to fix this? I have rotated the integrand to miss those points.
-
     # TODO This goes wrong when zx = zy and wx = wy (both z and w are on the y axis - which I do not see; is this below Numpy's precision?)
     # TODO: Also when zx = wx and zy = wy
 

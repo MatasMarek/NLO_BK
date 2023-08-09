@@ -8,12 +8,12 @@ import os
 np.seterr(over='raise')
 # EDEBUG
 
-steps_in_integrand_theta = 20
+steps_in_integrand_theta = 200
 shift = 2.*np.pi/steps_in_integrand_theta/2.  # to avoid double counting and y-axis with z and w.
 grid = {
     'grid_in_Y': np.linspace(0., 10., 1001),
     'grid_in_r': np.logspace(-5., 2., 40),
-    'grid_in_integrand_radius': np.logspace(-5., 2., 200),
+    'grid_in_integrand_radius': np.logspace(-5., 2., 20000),
     'grid_in_integrand_angle': np.linspace(-np.pi + shift, np.pi - shift, steps_in_integrand_theta),  # not to include 2pi to avoid double counting
 }
 

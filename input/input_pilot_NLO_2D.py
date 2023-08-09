@@ -11,7 +11,7 @@ grid = {
     'grid_in_Y': np.linspace(0., 10., 201),
     'grid_in_r': np.logspace(-7., 2., 50),
     'grid_in_b': np.logspace(-1., 2., 40),
-    'grid_in_integrand_radius': np.logspace(-5., 2., 200),
+    'grid_in_integrand_radius': np.logspace(-5., 2., 20000),
     'grid_in_integrand_angle': np.linspace(-np.pi + shift, np.pi - shift, steps_in_integrand_theta),  # not to include 2pi to avoid double counting
 }
 
@@ -22,7 +22,7 @@ integration_method = 'MC'
 no_of_samples = 10**6
 
 # DEBUG
-no_of_samples = 10**4
+no_of_samples = 10**5
 # EDEBUG
 
 order_of_rk = 1

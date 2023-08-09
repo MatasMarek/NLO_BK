@@ -26,7 +26,7 @@ def run(run_name):
         y = round(calculation['grid']['grid_in_Y'][y_ind], 2)
         if calculation['dimensionality_of_N'] == 1 and y % 1. == 0.:
             plot_1d_in_r(calculation['N'][y_ind], calculation['grid']['grid_in_r'], y, calculation)
-        if calculation['dimensionality_of_N'] == 2 and y % 1. == 0:
+        if calculation['dimensionality_of_N'] == 2:
             plot_2d_color(y_ind, calculation)
             plot_2d_fixed_b(y_ind, calculation)
         if calculation['dimensionality_of_N'] == 3:
@@ -43,9 +43,9 @@ if __name__ == '__main__':
     # run('pilot_run_ci_1D')
     # run('pilot_run_ci_2D')
     # run('pilot_run_NLO_1D')
-    # run('pilot_run_NLO_2D')
+    run('pilot_run_NLO_2D')
     # run('pilot_run_ci_3D')
-    run('pilot_run_ci_4D')
+    # run('pilot_run_ci_4D')
 
 
 
