@@ -25,7 +25,7 @@ integration_method = 'MC'
 no_of_samples = 10**6
 
 # DEBUG
-no_of_samples = 10**3
+no_of_samples = 10**5
 # EDEBUG
 
 order_of_rk = 1

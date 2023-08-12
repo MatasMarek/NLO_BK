@@ -1,5 +1,5 @@
 import numpy as np
-from io_bk import save_calculation
+from io_bk import save_calculation, print_calculation_stats
 from runge_kutta import runge_kutta
 import time
 from joblib import Parallel, delayed
@@ -129,15 +129,16 @@ def make_step(calculation):
 
 
 def run_calculation(calculation):
+    print_calculation_stats(calculation)
     calculation = set_up_grids(calculation)
     start_time = time.time()
     calculation['N'][0] = calculation['initial_cond']
     print('Y', 0.00, "--- %s seconds ---" % round(time.time() - start_time, 1))
     for y_ind in range(1, len(calculation['grid']['grid_in_Y'])):
         calculation['y_ind'] = y_ind
-        calculation = make_step(calculation)
-        if (y_ind) % 10 == 0:
+        if (y_ind) % 10 == 0. or calculation['order_of_BK'] == 'NLO' or calculation['dimensionality_of_N'] >= 2:
             save_calculation(calculation)
+        calculation = make_step(calculation)
         print('Y', round(calculation['grid']['grid_in_Y'][y_ind], 2), "--- %s seconds ---" % round(time.time() - start_time, 1))
     save_calculation(calculation)
     return
@@ -151,11 +152,11 @@ def run_calculation(calculation):
 #  * It might be that I ask the interpolation method for really small rs that I do not have in the grid
 
 # TODO:
-#  * Time the code for different number of cores, dimensions, and order of the BK
 #  * Make nice plots as gifs for the different cases
 #  * Get some convergence estimates for 2D ciBK
 #  * Map out the change in the proton for a small dipole size all bs and phis. Average over thetas.
 
 # It might very well be, that the unwanted unstable behavior for NLO comes from points when w and z are too close. Kernels diverge then.
 # TODO: I DID NOT HAVE ENOUGH POINTS IN INTEGRATION OVER r!, Change that in all inputs and add a check for that
+# TODO: automatically log the output in the output folder
 

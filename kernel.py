@@ -21,10 +21,10 @@ def Ka(calculation):
     if np.isnan(kernel).any():
         kernel[np.isnan(kernel)] = 0.
     # Setting the whole kernel to zero when r_xy is the same as r_zy or r_zx
-    same_rxy_rzx = np.abs(var['xy']['rsq'] - var['zx']['rsq']) < 10**-10
-    same_rxy_rzy = np.abs(var['xy']['rsq'] - var['zy']['rsq']) < 10**-10
-    same_rxy_rzx_or_rzy = np.logical_or(same_rxy_rzx, same_rxy_rzy)
-    kernel[same_rxy_rzx_or_rzy] = 0.
+    # same_rxy_rzx = np.abs(var['xy']['rsq'] - var['zx']['rsq']) < 10**-10
+    # same_rxy_rzy = np.abs(var['xy']['rsq'] - var['zy']['rsq']) < 10**-10
+    # same_rxy_rzx_or_rzy = np.logical_or(same_rxy_rzx, same_rxy_rzy)
+    # kernel[same_rxy_rzx_or_rzy] = 0.
     return kernel
 
 
@@ -68,10 +68,10 @@ def Kb(calculation):
     if np.isnan(kernel).any():
         kernel[np.isnan(kernel)] = 0.
     # Setting the whole kernel to zero when r_xy is the same as r_zy or r_zx
-    same_rxy_rzx = np.abs(var['xy']['rsq'] - var['zx']['rsq']) < 10**-10
-    same_rxy_rzy = np.abs(var['xy']['rsq'] - var['zy']['rsq']) < 10**-10
-    same_rxy_rzx_or_rzy = np.logical_or(same_rxy_rzx, same_rxy_rzy)
-    kernel[same_rxy_rzx_or_rzy] = 0.
+    # same_rxy_rzx = np.abs(var['xy']['rsq'] - var['zx']['rsq']) < 10**-10
+    # same_rxy_rzy = np.abs(var['xy']['rsq'] - var['zy']['rsq']) < 10**-10
+    # same_rxy_rzx_or_rzy = np.logical_or(same_rxy_rzx, same_rxy_rzy)
+    # kernel[same_rxy_rzx_or_rzy] = 0.
     return kernel
 
 
@@ -94,10 +94,10 @@ def Kf(calculation):
         kernel[np.isnan(kernel)] = 0.
 
     # Setting the whole kernel to zero when r_xy is the same as r_zy or r_zx
-    same_rxy_rzx = np.abs(var['xy']['rsq'] - var['zx']['rsq']) < 10**-10
-    same_rxy_rzy = np.abs(var['xy']['rsq'] - var['zy']['rsq']) < 10**-10
-    same_rxy_rzx_or_rzy = np.logical_or(same_rxy_rzx, same_rxy_rzy)
-    kernel[same_rxy_rzx_or_rzy] = 0.
+    # same_rxy_rzx = np.abs(var['xy']['rsq'] - var['zx']['rsq']) < 10**-10
+    # same_rxy_rzy = np.abs(var['xy']['rsq'] - var['zy']['rsq']) < 10**-10
+    # same_rxy_rzx_or_rzy = np.logical_or(same_rxy_rzx, same_rxy_rzy)
+    # kernel[same_rxy_rzx_or_rzy] = 0.
     return kernel
 
 

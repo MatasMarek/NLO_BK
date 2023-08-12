@@ -73,9 +73,9 @@ def mareks_N_4D(grid):
 
                     # Make a dipole-like deformation in the initial condition
                     if x_quark[1] < 0.:
-                        bqx_sq *= 0.3
+                        bqx_sq *= 0.7
                     if y_quark[1] < 0.:
-                        bqy_sq *= 0.3
+                        bqy_sq *= 0.7
 
                     T = np.exp(-bqx_sq ** 2 / (2. * c.B_G)) + np.exp(-bqy_sq ** 2 / (2. * c.B_G))
                     N[r_ind][b_ind][theta_ind][phi_ind] = 1. - np.exp(-0.5 * c.Qs0_sq / 4. * grid_in_r[r_ind] ** 2 * T)

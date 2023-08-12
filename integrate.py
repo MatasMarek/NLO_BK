@@ -72,6 +72,13 @@ def rs_bs_and_variables_for_N(calculation, x, y, no_of_samples, array_of_z=None)
             random_indexes_w[same_elements_in_z_and_w] = np.random.randint(0, len(integrand_cartesian_coods), len(random_indexes_w[same_elements_in_z_and_w]))
             same_elements_in_z_and_w = random_indexes_z == random_indexes_w
 
+        # # CONVERGENCE CONDITION 2.0: Fix that w and z are not too close to each other
+        # r_wz = get_r_from_cartesian_coods(integrand_cartesian_coods[random_indexes_w], integrand_cartesian_coods[random_indexes_z])
+        # elements_w_and_z_too_close = r_wz < 10**-6
+        # while (elements_w_and_z_too_close).any():
+        #     random_indexes_w[elements_w_and_z_too_close] = np.random.randint(0, len(integrand_cartesian_coods), len(random_indexes_w[elements_w_and_z_too_close]))
+        #     r_wz = get_r_from_cartesian_coods(integrand_cartesian_coods[random_indexes_w], integrand_cartesian_coods[random_indexes_z])
+        #     elements_w_and_z_too_close = r_wz < 10 ** -6
 
         array_of_w = integrand_cartesian_coods[random_indexes_w]
 

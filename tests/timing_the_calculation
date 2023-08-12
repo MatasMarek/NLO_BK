@@ -1,0 +1,43 @@
+
+
+
+############   LO
+
+PER STEP IN RAPIDITY
+1 core
+1D -> 0.15s/ 40 steps in r, 10**4 samples
+1D -> 1.5s/ 400 steps in r, 10**4 samples
+1D -> 1.5s/ 400 steps in r, 10**4 samples
+1D -> 1.5s/ 40 steps in r, 10**5 samples
+
+2 cores are slower for 40 steps in r
+
+2D -> 6.7s/ 40x40 steps, 10**4 samples
+2D -> 12.6s/ 40x80 steps, 10**4 samples
+2D -> 9.1s/ 40x80 steps, 10**4 samples - 2 cores
+2D -> 8.3s/ 40x80 steps, 10**4 samples - 3 cores
+
+
+#############   ci
+
+1D -> 1.5s/ 40 steps in r, 10**5 samples
+
+2D -> 8.3s/ 40x40 steps, 10**4 samples
+
+3D -> 121s/ 40x40x10 steps, 10**4 samples
+3D -> 77s/ 40x40x10 steps, 10**4 samples - 2 cores
+3D -> 62s/ 40x40x10 steps, 10**4 samples - 3 cores
+
+4D -> 656s/ 40x20x10x10 steps, 10**4 samples
+
+
+#############   NLO
+
+1D -> 0.25s/ 40 steps in r, 10**4 samples
+1D -> 2.5s/ 40 steps in r, 10**5 samples
+1D -> 2.7s/ 400 steps in r, 10**4 samples
+
+2D -> 17s/ 40x40 steps, 10**4 samples
+2D -> 173s/ 40x40 steps, 10**5 samples
+
+

@@ -30,12 +30,12 @@ integration_method = 'MC'
 no_of_samples = 10**4
 
 order_of_rk = 1
-order_of_BK = 'ci'
+order_of_BK = 'NLO'
 number_of_cores = 3
 
 from initial_conds import mareks_N_3D as cond
 initial_cond = cond(grid)
-run_name = 'pilot_run_ci_3D'
+run_name = 'pilot_run_NLO_3D'
 
 
 calculation = {
