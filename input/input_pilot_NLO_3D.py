@@ -27,7 +27,7 @@ dimensionality_of_N = 3  # r, b, theta
 integration_method = 'MC'
 # integration_method = 'Simps'
 
-no_of_samples = 10**4
+no_of_samples = 10**5
 
 order_of_rk = 1
 order_of_BK = 'NLO'

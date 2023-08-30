@@ -65,6 +65,16 @@ def print_calculation_stats(calculation):
     total_time = time_per_rapidity * steps_in_Y
 
     # convert the time such that it is in the most appropriate units
+    total_time, time_unit = get_time_in_appropriate_units(total_time)
+
+    print('Estimates for one core:')
+    print('Time per unit of rapidity', round(time_per_rapidity, 2), 's')
+    print('Total time:', round(total_time, 2), time_unit)
+    print('#################################################')
+    print('#################################################')
+
+
+def get_time_in_appropriate_units(total_time):
     if total_time < 60:
         total_time = total_time
         time_unit = 's'
@@ -80,11 +90,5 @@ def print_calculation_stats(calculation):
     else:
         total_time = total_time / 60 / 60 / 24 / 365
         time_unit = 'years'
-    print('Estimates for one core:')
-    print('Time per unit of rapidity', round(time_per_rapidity, 2), 's')
-    print('Total time:', round(total_time, 2), time_unit)
-    print('#################################################')
-    print('#################################################')
-
-
+    return round(total_time, 2), time_unit
 

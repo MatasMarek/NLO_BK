@@ -30,7 +30,7 @@ def run(run_name):
         if calculation['dimensionality_of_N'] == 2:
             print('plotting 2D for y = ' + str(y))
             plot_2d_color(y_ind, calculation)
-            plot_2d_fixed_b(y_ind, calculation)
+            # plot_2d_fixed_b(y_ind, calculation)
         if calculation['dimensionality_of_N'] == 3:
             plot_3d_color(y_ind, calculation)
             print('plotting 3D for y = ' + str(y))
@@ -48,8 +48,8 @@ if __name__ == '__main__':
     # run('pilot_run_NLO_1D')
     # run('pilot_run_NLO_2D')
     # run('pilot_run_ci_3D')
-    # run('pilot_run_ci_4D')
-    run('ci_4D_smaller_initial_dipole')
+    run('NLO_4D_smaller_initial_dipole')
+    # run('ci_4D_smaller_initial_dipole')
 
 
 

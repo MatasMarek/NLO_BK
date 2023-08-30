@@ -1,8 +1,9 @@
 import numpy as np
-from io_bk import save_calculation, print_calculation_stats
+from io_bk import save_calculation, print_calculation_stats, get_time_in_appropriate_units
 from runge_kutta import runge_kutta
 import time
 from joblib import Parallel, delayed
+import sys
 
 
 def get_grids_of_N(calculation):
@@ -130,16 +131,31 @@ def make_step(calculation):
 
 def run_calculation(calculation):
     print_calculation_stats(calculation)
+    stdoutOrigin = sys.stdout
+    output_path = '../output/' + calculation['run_name'] + '/log.txt'
+    sys.stdout = open(output_path, "w")
+    print_calculation_stats(calculation)
+
     calculation = set_up_grids(calculation)
     start_time = time.time()
     calculation['N'][0] = calculation['initial_cond']
+
+    sys.stdout = stdoutOrigin
     print('Y', 0.00, "--- %s seconds ---" % round(time.time() - start_time, 1))
+    sys.stdout = open(output_path, "a")
+    print('Y', 0.00, "--- %s seconds ---" % round(time.time() - start_time, 1))
+
     for y_ind in range(1, len(calculation['grid']['grid_in_Y'])):
+        sys.stdout.flush()
         calculation['y_ind'] = y_ind
         if (y_ind) % 10 == 0. or calculation['order_of_BK'] == 'NLO' or calculation['dimensionality_of_N'] >= 2:
             save_calculation(calculation)
         calculation = make_step(calculation)
-        print('Y', round(calculation['grid']['grid_in_Y'][y_ind], 2), "--- %s seconds ---" % round(time.time() - start_time, 1))
+        sys.stdout = stdoutOrigin
+        run_time, time_unit = get_time_in_appropriate_units(time.time() - start_time)
+        print('Y', round(calculation['grid']['grid_in_Y'][y_ind], 2), "--- " + str(run_time) + time_unit + " ---")
+        sys.stdout = open(output_path, "a")
+        print('Y', round(calculation['grid']['grid_in_Y'][y_ind], 2), "--- " + str(run_time) + time_unit + " ---")
     save_calculation(calculation)
     return
 
@@ -152,11 +168,12 @@ def run_calculation(calculation):
 #  * It might be that I ask the interpolation method for really small rs that I do not have in the grid
 
 # TODO:
-#  * Make nice plots as gifs for the different cases
 #  * Get some convergence estimates for 2D ciBK
-#  * Map out the change in the proton for a small dipole size all bs and phis. Average over thetas.
 
 # It might very well be, that the unwanted unstable behavior for NLO comes from points when w and z are too close. Kernels diverge then.
 # TODO: I DID NOT HAVE ENOUGH POINTS IN INTEGRATION OVER r!, Change that in all inputs and add a check for that
-# TODO: automatically log the output in the output folder
+# TODO: Check the LO and NLO integrands and come up with a better importance sampling for the two cases
+# TODO: Vectorize Simpson in order to be able to compare to MC
+# TODO: Add rsync such that I can run the code on the cluster and keep identical versions of the data
+
 

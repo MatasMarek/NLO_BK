@@ -35,6 +35,7 @@ from initial_conds import MV_1D as cond
 initial_cond = cond(grid, Qs0_sq=21., Lambda=0.241, gamma=0.6)
 run_name = 'pilot_run_ci_1D'
 
+logging = True
 
 calculation = {
     'dimensionality_of_N': dimensionality_of_N,  # Dimensionality of N
@@ -46,6 +47,7 @@ calculation = {
     'number_of_cores': number_of_cores,  # number of cores for the outermost parallelization
     'run_name': run_name,  # name of the run
     'no_of_samples': no_of_samples,  # for the stochastical MC case
+    'logging': logging,
 }
 
 if not os.path.isdir('../output/' + run_name):

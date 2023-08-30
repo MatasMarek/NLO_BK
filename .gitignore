@@ -1,7 +1,7 @@
 /output
 /venv
 .idea/
-
+/postprocess_results/gif_workplace
 # Created by https://www.gitignore.io/api/macos,linux,django,python,pycharm
 
 ### Django ###
