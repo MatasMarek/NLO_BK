@@ -23,11 +23,23 @@ def print_out_calculation(calculation):
 
 def save_calculation(calculation):
     run_name = calculation['run_name']
-    np.save('../output/' + run_name + '/calculation', calculation, allow_pickle=True)
+    # save only the important stuff and not the stuff that takes a lot of memory
+    calculation_to_save = {
+        'run_name': calculation['run_name'],
+        'order_of_BK': calculation['order_of_BK'],
+        'integration_method': calculation['integration_method'],
+        'order_of_rk': calculation['order_of_rk'],
+        'number_of_cores': calculation['number_of_cores'],
+        'dimensionality_of_N': calculation['dimensionality_of_N'],
+        'N': calculation['N'],
+        'grid': calculation['grid'],
+        'y_ind': calculation['y_ind'],
+    }
+    np.save('../output/' + run_name + '/calculation', calculation_to_save, allow_pickle=True)
 
 
 def load_calculation(run_name):
-    calculation = np.load('../output/' + run_name + '/calculation.npy', allow_pickle=True).item()
+    calculation = np.load('/Users/mmatasadmin/Library/Mobile Documents/com~apple~CloudDocs/code/NLO_BK/output/' + run_name + '/calculation.npy', allow_pickle=True).item()
     return calculation
 
 
@@ -53,11 +65,11 @@ def print_calculation_stats(calculation):
     time_per_unit_LO_1D = 1.5 / 10**4 / 400
     time_per_unit_ci = 121. / 40 / 40 / 10 / 10**4
     time_per_unit_NLO = 17 / 10**4 / 40 / 40
-    if order_of_BK == 'LO':
+    if order_of_BK == 'LO' or order_of_BK == 'NLO_LOcut':
         time_per_unit = time_per_unit_LO_1D
-    elif order_of_BK == 'ci':
+    elif order_of_BK == 'ci' or order_of_BK=='ci_nokdla':
         time_per_unit = time_per_unit_ci
-    elif order_of_BK == 'NLO':
+    elif order_of_BK == 'NLO' or order_of_BK == 'NLO_LOcut':
         time_per_unit = time_per_unit_NLO
     else:
         raise ValueError('Order of BK is not recognized.')

@@ -26,6 +26,34 @@ def MV_1D(grid, Qs0_sq, Lambda, gamma):
     return N
 
 
+def MV_1D_guillermo(grid, Qs0_sq, gamma):
+    """
+    // initial condition used by Lappi and Matysaari
+double getLM(double r2)
+{
+  double r2q2 = r2*gQ2s0LM;
+  double rqInv = 1.0/std::sqrt(r2q2);
+  double a = std::log(rqInv+std::exp(1));
+  double b = std::pow(r2q2,gGammaLM);
+  double c = 1-std::exp(-b*a);
+  return c;
+} // end getLM
+    """
+
+    grid_in_r = grid['grid_in_r']
+    N = np.zeros(len(grid_in_r))
+    for r_ind in range(len(grid_in_r)):
+        N[r_ind] = 1. - np.exp(- (grid_in_r[r_ind]**2 * Qs0_sq)**gamma * np.log(1./(grid_in_r[r_ind] * np.sqrt(Qs0_sq)) + np.e))
+    return N
+
+
+def GBW_1D(grid, Qs0_sq, Lambda, gamma):
+    grid_in_r = grid['grid_in_r']
+    N = np.zeros(len(grid_in_r))
+    for r_ind in range(len(grid_in_r)):
+        N[r_ind] = 1. - np.exp(- (grid_in_r[r_ind]**2 * Qs0_sq)**gamma/4.)
+    return N
+
 def mareks_N_3D(grid):
     grid_in_r = grid['grid_in_r']
     grid_in_b = grid['grid_in_b']

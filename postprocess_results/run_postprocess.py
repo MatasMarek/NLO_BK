@@ -44,11 +44,13 @@ if __name__ == '__main__':
     # run_all()
     # run('pilot_run_LO_2D')
     # run('pilot_run_ci_1D')
+    # run('pilot_run_ci_1D_simps')
+    # run('pilot_run_ci_2D_simps')
     # run('pilot_run_ci_2D')
-    # run('pilot_run_NLO_1D')
+    run('pilot_run_NLO_1D')
     # run('pilot_run_NLO_2D')
     # run('pilot_run_ci_3D')
-    run('NLO_4D_smaller_initial_dipole')
+    # run('NLO_4D_smaller_initial_dipole')
     # run('ci_4D_smaller_initial_dipole')
 
 

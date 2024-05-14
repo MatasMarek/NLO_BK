@@ -1,11 +1,13 @@
 import os.path
 import shutil
+import sys
+sys.path.append('../')
 from run import run_calculation
 import numpy as np
 import os
 
 #DEBUG YOU SET THE LOWER BOUND TO BE -5
-np.seterr(over='raise')
+np.seterr(all='raise')
 # EDEBUG
 
 steps_in_integrand_theta = 200
@@ -22,7 +24,7 @@ dimensionality_of_N = 1  # r, b
 
 integration_method = 'MC'
 
-no_of_samples = 10**4
+no_of_samples = 10**5
 
 order_of_rk = 1
 order_of_BK = 'NLO'
@@ -30,7 +32,7 @@ number_of_cores = 1
 
 
 from initial_conds import MV_1D as cond
-initial_cond = cond(grid, Qs0_sq=21., Lambda=0.241, gamma=0.6)
+initial_cond = cond(grid, Qs0_sq=(19.*0.241)**2, Lambda=0.241, gamma=0.6)
 run_name = 'pilot_run_NLO_1D'
 
 

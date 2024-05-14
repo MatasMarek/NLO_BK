@@ -10,9 +10,8 @@ def integrate(calculation, x, y):
     if calculation['integration_method'] == 'MC':
         return integrate_MC(calculation, x, y)
 
-    elif calculation['integration_method'] == 'Simpson':
+    elif calculation['integration_method'] == 'Simps':
         return integrate_Simpson(calculation, x, y)
-
     else:
         print('Integration method not implemented.')
         exit(1)
@@ -30,16 +29,18 @@ def get_b_from_cartesian_coods(cartesian_coods_one, cartesian_coods_two):
 
 def get_phi_from_cartesian_coods(cartesian_coods_one, cartesian_coods_two):
     center_of_dipole_vector = (cartesian_coods_one + cartesian_coods_two)/2.
-    phi = np.arctan2(center_of_dipole_vector[:, 0], center_of_dipole_vector[:, 1])
+    phi = np.arctan2(center_of_dipole_vector[:, 1], center_of_dipole_vector[:, 0])
     return phi
 
 
 def get_theta_from_cartesian_coods(cartesian_coods_one, cartesian_coods_two):
     # TODO: Check this routine; Does it work for all cases?
     dipole_vector = (cartesian_coods_one - cartesian_coods_two)
-    theta = np.arctan2(dipole_vector[:, 0], dipole_vector[:, 1])
+    theta = np.arctan2(dipole_vector[:, 1], dipole_vector[:, 0])
     return theta
 
+# MATEJ BACKLOG
+# TODO: To get to the real theta eveybody uses, you have to do theta = moje_thete - phi, I can do that in postpr
 
 def get_cood_combination(x, y, z, w=None):
     cood_combination = {}
@@ -52,35 +53,45 @@ def get_cood_combination(x, y, z, w=None):
     return cood_combination
 
 
-def rs_bs_and_variables_for_N(calculation, x, y, no_of_samples, array_of_z=None):
+def rs_bs_and_variables_for_N(calculation, x, y, no_of_samples):
     integrand_cartesian_coods = calculation['integrand_cartesian_coods']
     random_indexes_z = np.random.randint(0, len(integrand_cartesian_coods), no_of_samples)  # z
+    calculation['quark_positions'] = {}
+
     if calculation['integration_method'] == 'MC':
         array_of_z = integrand_cartesian_coods[random_indexes_z]
-    calculation['quark_positions'] = {}
+    else:
+        array_of_z = integrand_cartesian_coods
+    calculation['quark_positions']['z'] = array_of_z
+
     calculation['quark_positions']['x'] = x
     calculation['quark_positions']['y'] = y
-    calculation['quark_positions']['z'] = array_of_z
-    if calculation['order_of_BK'] == 'NLO':  # get quark positions based on the order of the BK equation
-        if calculation['integration_method'] != 'MC':
-            print('Simpson for NLO not implemented')
-            exit(1)
-        random_indexes_w = np.random.randint(0, len(integrand_cartesian_coods), no_of_samples)  # w
-        # CONVERGENCE CONDITION: Fix that you dont have w and z the same since the integral then does not work
-        same_elements_in_z_and_w = random_indexes_z == random_indexes_w
-        while (same_elements_in_z_and_w).any():
-            random_indexes_w[same_elements_in_z_and_w] = np.random.randint(0, len(integrand_cartesian_coods), len(random_indexes_w[same_elements_in_z_and_w]))
+
+    if calculation['order_of_BK'] == 'NLO' or calculation['order_of_BK'] == 'NLO_LOcut':  # get quark positions based on the order of the BK equation
+        if calculation['integration_method'] == 'MC':
+            random_indexes_w = np.random.randint(0, len(integrand_cartesian_coods), no_of_samples)  # w
+            # CONVERGENCE CONDITION: Fix that you dont have w and z the same since the integral then does not work
             same_elements_in_z_and_w = random_indexes_z == random_indexes_w
+            while (same_elements_in_z_and_w).any():
+                random_indexes_w[same_elements_in_z_and_w] = np.random.randint(0, len(integrand_cartesian_coods), len(random_indexes_w[same_elements_in_z_and_w]))
+                same_elements_in_z_and_w = random_indexes_z == random_indexes_w
 
-        # # CONVERGENCE CONDITION 2.0: Fix that w and z are not too close to each other
-        # r_wz = get_r_from_cartesian_coods(integrand_cartesian_coods[random_indexes_w], integrand_cartesian_coods[random_indexes_z])
-        # elements_w_and_z_too_close = r_wz < 10**-6
-        # while (elements_w_and_z_too_close).any():
-        #     random_indexes_w[elements_w_and_z_too_close] = np.random.randint(0, len(integrand_cartesian_coods), len(random_indexes_w[elements_w_and_z_too_close]))
-        #     r_wz = get_r_from_cartesian_coods(integrand_cartesian_coods[random_indexes_w], integrand_cartesian_coods[random_indexes_z])
-        #     elements_w_and_z_too_close = r_wz < 10 ** -6
+            # # CONVERGENCE CONDITION 2.0: Fix that w and z are not too close to each other
+            # r_wz = get_r_from_cartesian_coods(integrand_cartesian_coods[random_indexes_w], integrand_cartesian_coods[random_indexes_z])
+            # elements_w_and_z_too_close = r_wz < 10**-6
+            # while (elements_w_and_z_too_close).any():
+            #     random_indexes_w[elements_w_and_z_too_close] = np.random.randint(0, len(integrand_cartesian_coods), len(random_indexes_w[elements_w_and_z_too_close]))
+            #     r_wz = get_r_from_cartesian_coods(integrand_cartesian_coods[random_indexes_w], integrand_cartesian_coods[random_indexes_z])
+            #     elements_w_and_z_too_close = r_wz < 10 ** -6
 
-        array_of_w = integrand_cartesian_coods[random_indexes_w]
+            array_of_w = integrand_cartesian_coods[random_indexes_w]
+        else:
+            # Get a combination of a w for each point in z and vice versa
+            array_of_z = np.vstack([integrand_cartesian_coods]*len(integrand_cartesian_coods))
+            array_of_w = np.repeat(integrand_cartesian_coods, len(integrand_cartesian_coods), axis=0)
+            print(len(array_of_w), len(array_of_z))
+
+            calculation['quark_positions']['z'] = array_of_z
 
         calculation['quark_positions']['w'] = array_of_w
         cood_combination = get_cood_combination(x, y, array_of_z, w=array_of_w)
@@ -167,7 +178,7 @@ def integrate_MC(calculation, x, y):
     normalization = probability_normalization_polar * probability_normalization_log
     jacobian_for_z_integration = np.squeeze(jacobian_for_z_integration)
 
-    if calculation['order_of_BK'] == 'NLO':
+    if calculation['order_of_BK'] == 'NLO' or calculation['order_of_BK'] == 'NLO_LOcut':
         distances_from_origin_w_quark = np.linalg.norm(calculation['quark_positions']['w'], axis=1, keepdims=True)
         jacobian_for_wz_integration = jacobian(distances_from_origin_z_quark) * jacobian(distances_from_origin_w_quark)
         jacobian_for_wz_integration = np.squeeze(jacobian_for_wz_integration)
@@ -176,7 +187,10 @@ def integrate_MC(calculation, x, y):
 
         integral_over_z = normalization * np.sum(jacobian_for_z_integration * evaluated_points_for_z_integration) / no_of_samples
         integral_over_wz = normalization**2 * np.sum(jacobian_for_wz_integration * evaluated_points_for_wz_integration) / no_of_samples
-
+        # # DEBUG
+        # print('First step', integral_over_z, integral_over_wz)
+        # exit(1)
+        # # DEBUG
         return integral_over_z + integral_over_wz
     else:
         if calculation['order_of_rk'] == 1:
@@ -195,22 +209,34 @@ def integrate_Simpson(calculation, x, y):
     if calculation['order_of_rk'] != 1:
         print('Simpson method implemented only for Runge Kutta method of the order 1')
         exit(1)
-    if calculation['order_of_BK'] != 'NLO':
-        integrand_angles = calculation['grid']['grid_in_integrand_angle']
-        integrand_radii = calculation['grid']['grid_in_integrand_radius']
-        integrand_in_radius = []
-        for radius_ind in range(len(integrand_radii)):
-            z_coods = []
-            for theta_ind in range(len(integrand_angles)):
-                z_coods.append(calculation['integrand_cartesian_coods'][radius_ind * len(integrand_angles) + theta_ind])
-            calculation = rs_bs_and_variables_for_N(calculation, x, y, 0, np.array(z_coods))
-            calculation = get_Ns(calculation)
+    integrand_angles = calculation['grid']['grid_in_integrand_angle']
+    integrand_radii = calculation['grid']['grid_in_integrand_radius']
+    calculation = rs_bs_and_variables_for_N(calculation, x, y, 0)
+    calculation = get_Ns(calculation)
 
-            integrand_in_radius.append(simps(integrand(calculation), integrand_angles))
-        return simps(integrand_in_radius * integrand_radii, integrand_radii)  # Jacobian for the polar integral, log is there by scipy.simps
+    if calculation['order_of_BK'] == 'NLO' or calculation['order_of_BK'] == 'NLO_LOcut':
+        integrand_simps_over_z, integrand_simps_over_wz = integrand(calculation)
+
+        # Integral over z
+        integrand_simps_over_z = integrand_simps_over_z[:len(calculation['integrand_cartesian_coods'])]  # Make it only for one integrand of z instead of the repeating tiled version
+        integrand_simps_over_z = integrand_simps_over_z.reshape((len(integrand_radii), len(integrand_angles)))
+        integral_over_z = simps(simps(integrand_simps_over_z, integrand_angles)*integrand_radii, integrand_radii)
+
+        # Integral over both w and z
+        integrand_simps_over_wz = integrand_simps_over_wz.reshape((len(integrand_radii), len(integrand_angles), len(integrand_radii), len(integrand_angles)))
+        integral_over_w = simps(simps(integrand_simps_over_wz, integrand_angles)*integrand_radii, integrand_radii)
+        integral_over_wz = simps(simps(integral_over_w, integrand_angles)*integrand_radii, integrand_radii)
+        return integral_over_z + integral_over_wz
+
     else:
-        print('Simpson integration for NLO not implemented.')
-        exit(1)
+        integrand_simps = integrand(calculation)
+        integrand_simps = integrand_simps.reshape((len(integrand_radii), len(integrand_angles)))
+        # Add the Jacobian for the polar integral, log is there by scipy.simps - You added it in the Simps method
+        # integrand_simps = (integrand_simps.T * integrand_radii).T
+        # Integrate
+        integral_value = simps(simps(integrand_simps, integrand_angles) * integrand_radii, integrand_radii)
+        # TODO: Test this and the NLO version above
+        return integral_value
 
 
 

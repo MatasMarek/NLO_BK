@@ -91,11 +91,10 @@ def make_step_in_r(r_ind, calculation):
                             phi = grid_in_phi[phi_ind]
                             calculation['variables_for_N']['xy']['phi'] = phi
                             calculation['Ns']['xy'] = calculation['N'][y_ind - 1][r_ind][b_ind][theta_ind][phi_ind]
-                            # TODO: Doublecheck this with a blackboard
                             x = np.array([-r / 2. * np.cos(theta) + b * np.cos(phi),
-                                          b - r / 2. * np.sin(theta) + b * np.sin(phi)])
+                                        -r / 2. * np.sin(theta) + b * np.sin(phi)])
                             y = np.array([r / 2. * np.cos(theta) + b * np.cos(phi),
-                                          b + r / 2. * np.sin(theta) + b * np.sin(phi)])
+                                           r / 2. * np.sin(theta) + b * np.sin(phi)])
                             N_to_add_r_ind[b_ind][theta_ind][phi_ind] = runge_kutta(calculation, x, y)
     return N_to_add_r_ind
 
@@ -148,7 +147,7 @@ def run_calculation(calculation):
     for y_ind in range(1, len(calculation['grid']['grid_in_Y'])):
         sys.stdout.flush()
         calculation['y_ind'] = y_ind
-        if (y_ind) % 10 == 0. or calculation['order_of_BK'] == 'NLO' or calculation['dimensionality_of_N'] >= 2:
+        if (y_ind-1) % 10 == 0. or calculation['order_of_BK'] == 'NLO' or calculation['dimensionality_of_N'] >= 2 or calculation['order_of_BK'] == 'NLO_LOcut':
             save_calculation(calculation)
         calculation = make_step(calculation)
         sys.stdout = stdoutOrigin
@@ -166,6 +165,7 @@ def run_calculation(calculation):
 #  * fraction inside kernel not infinite - done for ci, not for LO
 #  * It might be that the interpolation method should extrapolate rather than cut off
 #  * It might be that I ask the interpolation method for really small rs that I do not have in the grid
+#  * Check with Guillermo's conditions
 
 # TODO:
 #  * Get some convergence estimates for 2D ciBK
@@ -173,7 +173,4 @@ def run_calculation(calculation):
 # It might very well be, that the unwanted unstable behavior for NLO comes from points when w and z are too close. Kernels diverge then.
 # TODO: I DID NOT HAVE ENOUGH POINTS IN INTEGRATION OVER r!, Change that in all inputs and add a check for that
 # TODO: Check the LO and NLO integrands and come up with a better importance sampling for the two cases
-# TODO: Vectorize Simpson in order to be able to compare to MC
-# TODO: Add rsync such that I can run the code on the cluster and keep identical versions of the data
-
 

@@ -10,35 +10,32 @@ import os
 np.seterr(over='raise')
 # EDEBUG
 
-steps_in_integrand_theta = 200
+steps_in_integrand_theta = 40
 shift = 2.*np.pi/steps_in_integrand_theta/2.  # to avoid double counting and y-axis with z and w.
 grid = {
-    'grid_in_Y': np.linspace(0., 10., 101),
-    'grid_in_r': np.logspace(-7., 2., 40),
-    'grid_in_integrand_radius': np.logspace(-7., np.log10(109.64782), 20000),
+    'grid_in_Y': np.linspace(0., 10., 201),
+    'grid_in_r': np.logspace(-4., 2., 40),
+    'grid_in_integrand_radius': np.logspace(-7., 2., 200),
     'grid_in_integrand_angle': np.linspace(-np.pi + shift, np.pi - shift, steps_in_integrand_theta),  # not to include 2pi to avoid double counting
 }
 
 
 dimensionality_of_N = 1  # r, b
 
-# integration_method = 'Simpson'
-integration_method = 'MC'
+integration_method = 'Simps'
+# integration_method = 'MC'
 
 no_of_samples = 10**5
 
 order_of_rk = 1
-order_of_BK = 'ci_nokdla'
+order_of_BK = 'ci'
 number_of_cores = 1
 
 
 from initial_conds import MV_1D as cond
-# from initial_conds import GBW_1D as cond
 # initial_cond = cond(grid, Qs0_sq=0.165, Lambda=0.241, gamma=1.135)
-initial_cond = cond(grid, Qs0_sq=0.15, Lambda=0.1, gamma=1.4)
-# initial_cond = cond(grid, Qs0_sq=(19.*0.241)**2, Lambda=0.241, gamma=0.6)
-# initial_cond = cond(grid, Qs0_sq=21., Lambda=0.241, gamma=0.6)
-run_name = 'pilot_run_ci_1D'
+initial_cond = cond(grid, Qs0_sq=21., Lambda=0.241, gamma=0.6)
+run_name = 'pilot_run_ci_1D_simpson'
 
 logging = True
 
@@ -62,6 +59,3 @@ shutil.copyfile(__file__, '../output/' + run_name + '/input.py')
 shutil.copyfile('../const.py', '../output/' + run_name + '/const.py')
 
 run_calculation(calculation)
-
-
-
