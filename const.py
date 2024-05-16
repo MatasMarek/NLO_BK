@@ -16,11 +16,6 @@ mb = 4.5  # GeV
 C = np.sqrt(0.3)
 alpha_freeze = 0.761911
 
-# DEBUG
-# C = 30.
-# alpha_freeze = 1.
-
-
 alpha_mz = 0.1189
 A1 = 11. / 12.
 C_sub = 0.65

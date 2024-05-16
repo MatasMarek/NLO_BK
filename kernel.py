@@ -88,9 +88,6 @@ def Krc(calculation, alpha_fixed=False):
     second = (1./var['zx']['rsq']) * (alpha_s(var['zx']['rsq'], alpha_fixed)/alpha_s(var['zy']['rsq'], alpha_fixed) - 1.)
     third =  (1./var['zy']['rsq']) * (alpha_s(var['zy']['rsq'], alpha_fixed)/alpha_s(var['zx']['rsq'], alpha_fixed) - 1.)
     kernel = fraction * (first + second + third)
-    # if abs(kernel).any() >= 10**5:
-    #     print('diverging kernel')
-    #     exit(1)
     return kernel
 
 
@@ -108,7 +105,7 @@ def Kb(calculation):
 
     bracket_first_down = var['wz']['rsq']**2 * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'])
 
-    problematic_terms_bool = var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'] < 10**-20
+    problematic_terms_bool = var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'] < 10**-40
     not_problematic_terms_bool = np.invert(problematic_terms_bool)
 
 
@@ -116,10 +113,10 @@ def Kb(calculation):
     not_problematic_values = bracket_first_up[not_problematic_terms_bool]/bracket_first_down[not_problematic_terms_bool]
     bracket_first = replace_problematic_terms(problematic_terms_bool, problematic_values, not_problematic_values)
 
-    # TODO Ask Honza; This Kernel diverges for z and w on the y axis. Then the zx = zy and wx = wy
+    # Ask Honza; This Kernel diverges for z and w on the y axis. Then the zx = zy and wx = wy
     #  (Only for the 2D case) How to fix this? I have rotated the integrand to miss those points.
-    # TODO This goes wrong when zx = zy and wx = wy (both z and w are on the y axis - which I do not see; is this below Numpy's precision?)
-    # TODO: Also when zx = wx and zy = wy
+    # This goes wrong when zx = zy and wx = wy (both z and w are on the y axis - which I do not see; is this below Numpy's precision?)
+    # Also when zx = wx and zy = wy
 
     bracket_second_down = (var['zx']['rsq']*var['wy']['rsq'] * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq']))
     problematic_values = (var['xy']['rsq']**2/(var['zx']['rsq']*var['wy']['rsq']))[problematic_terms_bool]
@@ -130,9 +127,7 @@ def Kb(calculation):
     bracket_third[problematic_terms_bool] = 0.
     bracket = bracket_first + bracket_second + bracket_third
 
-    # DEBUG
     log_term = np.ones(len(bracket))
-    # log_term = np.zeros(len(bracket))
     log_term[not_problematic_terms_bool] = np.log((var['zx']['rsq'] * var['wy']['rsq'])[not_problematic_terms_bool] / (var['wx']['rsq'] * var['zy']['rsq'])[not_problematic_terms_bool])
     kernel = fraction * (in_front_of_bracket + bracket * log_term)
 
@@ -154,10 +149,10 @@ def Kb(calculation):
     # Dasa's cutoff of the infinities
     if np.isinf(kernel).any():
         kernel[np.isinf(kernel)] = 0.
-        print('Kb Inf')
+        # print('Kb Inf')
     if np.isnan(kernel).any():
         kernel[np.isnan(kernel)] = 0.
-        print('Kb Nan')
+        # print('Kb Nan')
     # Setting the whole kernel to zero when r_xy is the same as r_zy or r_zx
     # same_rxy_rzx = np.abs(var['xy']['rsq'] - var['zx']['rsq']) < 10**-10
     # same_rxy_rzy = np.abs(var['xy']['rsq'] - var['zy']['rsq']) < 10**-10
@@ -180,7 +175,7 @@ def Kf(calculation):
     second_up = var['wx']['rsq']*var['zy']['rsq'] + var['wy']['rsq']*var['zx']['rsq'] - var['xy']['rsq']*var['wz']['rsq']
     second_down = var['wz']['rsq']**2 * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'])
 
-    problematic_terms_bool = var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'] < 10**-20
+    problematic_terms_bool = var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'] < 10**-40
     not_problematic_terms_bool = np.invert(problematic_terms_bool)
 
     # PERFORMING THE LIMIT ON THE LOG-TERM
@@ -188,9 +183,7 @@ def Kf(calculation):
     not_problematic_values = second_up[not_problematic_terms_bool]/second_down[not_problematic_terms_bool]
     second = replace_problematic_terms(problematic_terms_bool, problematic_values, not_problematic_values)
 
-    # DEBUG
     log_term = np.ones(len(second))
-    # log_term = np.zeros(len(second))
     log_term[not_problematic_terms_bool] = np.log((var['zx']['rsq'] * var['wy']['rsq'])[not_problematic_terms_bool] / (var['wx']['rsq'] * var['zy']['rsq'])[not_problematic_terms_bool])
 
     kernel = fraction*(first - second * log_term)
@@ -203,17 +196,16 @@ def Kf(calculation):
     second = second_up/second_down
     log_term = np.log(var['zx']['rsq'] * var['wy']['rsq'] / (var['wx']['rsq'] * var['zy']['rsq']))
     kernel = fraction*(first - second * log_term)
-    # print('Kf Old and new kernel check', (kernel == kernel_new)[not_problematic_terms_bool].all())
     # OLD KERNEL
 
     #  CONVERGENCE CONDITION
     # Dasa's cutoff of the infinities
     if np.isinf(kernel).any():
         kernel[np.isinf(kernel)] = 0.
-        print('Kf Inf')
+        # print('Kf Inf')
     if np.isnan(kernel).any():
         kernel[np.isnan(kernel)] = 0.
-        print('Kf Nan')
+        # print('Kf Nan')
 
     # Setting the whole kernel to zero when r_xy is the same as r_zy or r_zx
     # same_rxy_rzx = np.abs(var['xy']['rsq'] - var['zx']['rsq']) < 10**-10
@@ -275,7 +267,7 @@ def Kci(calculation):
 def kdla_with_limits(alpha_bar, rho_sq):
     # Setting KDLA to one when rho_sq is zero
     kdla_array = np.ones(len(rho_sq))
-    cutoff = 10 ** -8
+    cutoff = 10 ** -10
     kdla_array[rho_sq > cutoff] = kdla(alpha_bar[rho_sq > cutoff], rho_sq[rho_sq > cutoff], j_bessel=True)
     kdla_array[rho_sq < -cutoff] = kdla(alpha_bar[rho_sq < -cutoff], rho_sq[rho_sq < -cutoff], j_bessel=False)
     return kdla_array

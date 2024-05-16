@@ -50,13 +50,13 @@ def log_MC(log):
 
 
 def both_combined_the_Mareks_way():
-    no_of_samples = 100000
+    no_of_samples = 500000
     steps_in_integrand_theta = 20
     integral = 0.
 
     shift = 2. * np.pi / steps_in_integrand_theta / 2.  # to avoid double counting and y-axis with z and w.
     integrand_angles = np.linspace(-np.pi + shift, np.pi - shift, steps_in_integrand_theta)
-    integrand_radii = np.logspace(-5., 1., 20000)
+    integrand_radii = np.logspace(-7., 2., 20000)
     integrand_cartesian_coods = np.zeros((len(integrand_angles) * len(integrand_radii), 2))
     for radius_ind in range(len(integrand_radii)):
         for theta_ind in range(len(integrand_angles)):
@@ -71,7 +71,8 @@ def both_combined_the_Mareks_way():
         x = integration_point[0]
         y = integration_point[1]
         jacobian = np.linalg.norm(integration_point) * np.log(10.) * np.linalg.norm(integration_point)  # One r for polar integration and ln(10)*r for log
-        integral += function_to_integrate(x, y)*jacobian
+        # integral += function_to_integrate(x, y)*jacobian
+        integral += 1.*jacobian
     probability_normalization_polar = 2. * np.pi
     probability_normalization_log = np.log10(integrand_radii[-1]) - np.log10(integrand_radii[0])
     print(probability_normalization_log, probability_normalization_polar)
@@ -173,9 +174,9 @@ def both_combined_the_Mareks_way_2D_normal_distribution_sampling():
 # log_MC(log=True)
 # log_MC(log=False)
 
-# both_combined_the_Mareks_way()
+both_combined_the_Mareks_way()
 # both_combined_the_Mareks_way_2D()
-both_combined_the_Mareks_way_2D_normal_distribution_sampling()
+# both_combined_the_Mareks_way_2D_normal_distribution_sampling()
 
 
 

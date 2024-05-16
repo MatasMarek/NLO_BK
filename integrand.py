@@ -40,17 +40,10 @@ def integrand_NLO(calculation):
     # allowed keys are 'zx', 'zy', 'wx', 'wz', 'wy'
     Ns = calculation['Ns']
 
-    # if 'drop_double_log' in calculation:
-    #     if calculation['drop_double_log']:
-    #         first_term = K1(calculation) * (Ns['zx'] + Ns['zy'] - Ns['xy'] - Ns['zx'] * Ns['zy'])
-    #     else:
-    #         first_term = Ka(calculation) * (Ns['zx'] + Ns['zy'] - Ns['xy'] - Ns['zx'] * Ns['zy'])
-    # else:
-    #     first_term = Ka(calculation) * (Ns['zx'] + Ns['zy'] - Ns['xy'] - Ns['zx'] * Ns['zy'])
-
     first_term = K1(calculation) * (Ns['zx'] + Ns['zy'] - Ns['xy'] - Ns['zx'] * Ns['zy'])
     second_term = Kb(calculation) * (Ns['wy'] + Ns['wz'] - Ns['zy'] - Ns['zx'] * Ns['wz'] - Ns['zx'] * Ns['wy'] - Ns['wz'] * Ns['wy'] + Ns['zx'] * Ns['zy'] + Ns['zx'] * Ns['wz'] * Ns['wy'])
     third_term = Kf(calculation) * (Ns['wx'] - Ns['zx'] - Ns['zy'] * Ns['wx'] + Ns['zx'] * Ns['zy'])
+
     return first_term, second_term + third_term  # First term is integrated just over z, the other two over w
 
 

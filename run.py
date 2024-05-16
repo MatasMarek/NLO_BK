@@ -117,14 +117,14 @@ def make_step(calculation):
     calculation['N'][y_ind] = calculation['N'][y_ind - 1] + calculation['N_to_add']
 
     #  CONVERGENCE CONDITION
-    # DEBUG CHECK FOR NEGATIVE VALUES IN N
+    # CHECK FOR NEGATIVE VALUES IN N
     if (calculation['N'][y_ind] < 0.).any():
         print(100.*np.sum(calculation['N'][y_ind] < 0.)/calculation['N'][y_ind].size, '% of negative values in N with a min of', np.min(calculation['N'][y_ind]))
         calculation['N'][y_ind][calculation['N'][y_ind] < 0.] = 0.
     if (calculation['N'][y_ind] > 1.).any():
         print(100.*np.sum(calculation['N'][y_ind] > 1.)/calculation['N'][y_ind].size, ' % of values above 1 in N with a max of', np.max(calculation['N'][y_ind]))
         calculation['N'][y_ind][calculation['N'][y_ind] > 1.] = 1.
-    # DEBUG CHECK FOR NEGATIVE VALUES IN N
+    # CHECK FOR NEGATIVE VALUES IN N
     return calculation
 
 

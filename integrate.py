@@ -187,10 +187,6 @@ def integrate_MC(calculation, x, y):
 
         integral_over_z = normalization * np.sum(jacobian_for_z_integration * evaluated_points_for_z_integration) / no_of_samples
         integral_over_wz = normalization**2 * np.sum(jacobian_for_wz_integration * evaluated_points_for_wz_integration) / no_of_samples
-        # # DEBUG
-        # print('First step', integral_over_z, integral_over_wz)
-        # exit(1)
-        # # DEBUG
         return integral_over_z + integral_over_wz
     else:
         if calculation['order_of_rk'] == 1:
