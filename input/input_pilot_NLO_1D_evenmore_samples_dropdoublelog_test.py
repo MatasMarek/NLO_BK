@@ -19,8 +19,8 @@ grid = {
     'grid_in_Y': np.linspace(0., 10., 101),
     # 'grid_in_r': np.logspace(-7., 2., 47),
     # 'grid_in_r': np.array([0., 0.]),
-    # 'grid_in_r': np.logspace(-7., np.log10(158.48932), 47),
-    'grid_in_r': np.logspace(-7., np.log10(158.48932), 107),
+    'grid_in_r': np.logspace(-7., np.log10(158.48932), 47),
+    # 'grid_in_r': np.logspace(-7., np.log10(158.48932), 107),
     # 'grid_in_integrand_radius': np.logspace(-7., -7 +(226./25.), 10000),
     'grid_in_integrand_radius': np.logspace(-7., 2., 227),
     'grid_in_integrand_angle': np.linspace(-np.pi + shift, np.pi - shift, steps_in_integrand_theta),  # not to include 2pi to avoid double counting
