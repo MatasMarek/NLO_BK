@@ -124,7 +124,6 @@ def find_fractional(array, values, log=False):
 
 
 def interpolate_N(calculation, rs, bs=None, thetas=None, phis=None):
-    N = calculation['N'][calculation['y_ind'] - 1]  # N at the previous grid point in y
     index_r = find_fractional(calculation['grid']['grid_in_r'], rs, log=True)
     if bs is not None:
         index_b = find_fractional(calculation['grid']['grid_in_b'], bs, log=True)
@@ -139,6 +138,17 @@ def interpolate_N(calculation, rs, bs=None, thetas=None, phis=None):
             indexes = np.c_[index_r, index_b]
     else:
         indexes = np.c_[index_r]
+
+    if 'eta_rapidity' in calculation:
+        if calculation['eta_rapidity']:
+            N = calculation['N']
+            r_xy = calculation['variables_for_N']['xy']['r']
+            etas = calculation['grid']['grid_in_Y'][calculation['y_ind'] - 1] - np.maximum(np.zeros(len(rs)), 2.*np.log(r_xy/rs))
+            index_eta = find_fractional(calculation['grid']['grid_in_Y'], etas, log=False)
+            indexes = np.c_[index_eta, indexes]
+            return ndimage.map_coordinates(N, indexes.T, order=1, mode='nearest')
+
+    N = calculation['N'][calculation['y_ind'] - 1]  # N at the previous grid point in y
     N_interpolated = ndimage.map_coordinates(N, indexes.T, order=1, mode='nearest')
     return N_interpolated
 
