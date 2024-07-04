@@ -4,8 +4,8 @@ import numpy as np
 # Initial conditions
 
 # bdep-BK 2D
-Qs0_sq = 0.496  # GeV^2
-# Qs0_sq = 21.  # GeV^2
+# Qs0_sq = 0.496  # GeV^2
+Qs0_sq = 21.  # GeV^2
 B_G = 3.2258  # GeV^-2
 Nc = 3.
 nf = 3.
@@ -13,8 +13,7 @@ mZ = 91.1876  # GeV
 ml = 0.1  # GeV
 mc = 1.3  # GeV
 mb = 4.5  # GeV
-# C = np.sqrt(0.3)
-C = 8.
+C = np.sqrt(0.3)
 alpha_freeze = 0.761911
 
 alpha_mz = 0.1189
@@ -39,14 +38,6 @@ c_coupl = 0.2
 mu_over_lam = 2.5
 four_e_gamma = 1.26
 Lam_fixed = 0.5
-
-# Heikkis epsilon fix
-epsilon = 0.
-
-
-# DEBUG
-random_indexes_z = []
-random_indexes_w = []
 
 
 

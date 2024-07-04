@@ -3,7 +3,7 @@ from scipy import ndimage
 from integrand import integrand
 import math
 from scipy.integrate import simps
-
+import const as c
 
 def integrate(calculation, x, y):
     # This function is used to calculate the integral in the BK equation.
@@ -56,7 +56,14 @@ def get_cood_combination(x, y, z, w=None):
 def rs_bs_and_variables_for_N(calculation, x, y, no_of_samples):
     integrand_cartesian_coods = calculation['integrand_cartesian_coods']
     random_indexes_z = np.random.randint(0, len(integrand_cartesian_coods), no_of_samples)  # z
+    # if len(c.random_indexes_z) > 0:
+    #     random_indexes_z = c.random_indexes_z
+    # else:
+    #     random_indexes_z = np.random.randint(0, len(integrand_cartesian_coods), no_of_samples)  # z
+    #     c.random_indexes_z = random_indexes_z
+
     calculation['quark_positions'] = {}
+
 
     if calculation['integration_method'] == 'MC':
         array_of_z = integrand_cartesian_coods[random_indexes_z]
@@ -69,12 +76,24 @@ def rs_bs_and_variables_for_N(calculation, x, y, no_of_samples):
 
     if calculation['order_of_BK'] == 'NLO' or calculation['order_of_BK'] == 'NLO_LOcut':  # get quark positions based on the order of the BK equation
         if calculation['integration_method'] == 'MC':
+
+            # if len(c.random_indexes_w) > 0:
+            #     random_indexes_w = c.random_indexes_w
+            # else:
+            #     random_indexes_w = np.random.randint(0, len(integrand_cartesian_coods), no_of_samples)  # w
             random_indexes_w = np.random.randint(0, len(integrand_cartesian_coods), no_of_samples)  # w
+
             # CONVERGENCE CONDITION: Fix that you dont have w and z the same since the integral then does not work
             same_elements_in_z_and_w = random_indexes_z == random_indexes_w
             while (same_elements_in_z_and_w).any():
                 random_indexes_w[same_elements_in_z_and_w] = np.random.randint(0, len(integrand_cartesian_coods), len(random_indexes_w[same_elements_in_z_and_w]))
                 same_elements_in_z_and_w = random_indexes_z == random_indexes_w
+
+            # # DEBUG
+            # if len(c.random_indexes_w) == 0:
+            #     c.random_indexes_w = random_indexes_w
+            # # DEBUG
+
 
             # # CONVERGENCE CONDITION 2.0: Fix that w and z are not too close to each other
             # r_wz = get_r_from_cartesian_coods(integrand_cartesian_coods[random_indexes_w], integrand_cartesian_coods[random_indexes_z])
@@ -114,23 +133,37 @@ def rs_bs_and_variables_for_N(calculation, x, y, no_of_samples):
     return calculation
 
 
-def find_fractional(array, values, log=False):
-    if log:
+def find_fractional(array, values, log_array=False, lin_interp=False):
+    if log_array:
         array = np.log10(array)
         values = np.log10(values + 10**-30)  # Add small number to avoid log(0)
+
     step = (array[-1] - array[0])/(len(array) - 1)
     ixs = (values - array[0])/step
-    return ixs
+    if lin_interp and log_array:
+        values = 10**values
+        array = 10**array
+        ixs_lower = np.floor(ixs).astype(int)
+        ixs_lower[ixs_lower >= len(array) - 1] = len(array) - 2
+        lin_ixs = ixs_lower + (values - array[ixs_lower])/(array[ixs_lower + 1] - array[ixs_lower])
+        # To save time, here you let lin_ixs to be incorrectly above limit, but the interp method curbs those points.
+        return lin_ixs
+    else:
+        return ixs
 
 
 def interpolate_N(calculation, rs, bs=None, thetas=None, phis=None):
-    index_r = find_fractional(calculation['grid']['grid_in_r'], rs, log=True)
+    lin_interp = False
+    if 'interpolation' in calculation:
+        if calculation['interpolation'] == 'lin':
+            lin_interp = True
+    index_r = find_fractional(calculation['grid']['grid_in_r'], rs, log_array=True, lin_interp=lin_interp)
     if bs is not None:
-        index_b = find_fractional(calculation['grid']['grid_in_b'], bs, log=True)
+        index_b = find_fractional(calculation['grid']['grid_in_b'], bs, log_array=True, lin_interp=lin_interp)
         if thetas is not None:
-            index_theta = find_fractional(calculation['grid']['grid_in_theta'], thetas, log=False)
+            index_theta = find_fractional(calculation['grid']['grid_in_theta'], thetas, log_array=False)
             if phis is not None:
-                index_phi = find_fractional(calculation['grid']['grid_in_phi'], phis, log=False)
+                index_phi = find_fractional(calculation['grid']['grid_in_phi'], phis, log_array=False)
                 indexes = np.c_[index_r, index_b, index_theta, index_phi]
             else:
                 indexes = np.c_[index_r, index_b, index_theta]
@@ -181,16 +214,27 @@ def integrate_MC(calculation, x, y):
     # Probability distribution normalization
     probability_normalization_polar = 2. * np.pi
     probability_normalization_log = np.log10(calculation['grid']['grid_in_integrand_radius'][-1]) - np.log10(calculation['grid']['grid_in_integrand_radius'][0])
+    if 'linear_grid' in calculation:
+        if calculation['linear_grid']:
+            probability_normalization_log = 1.
 
     # Jacobian
     distances_from_origin_z_quark = np.linalg.norm(calculation['quark_positions']['z'], axis=1, keepdims=True)
+
     jacobian_for_z_integration = jacobian(distances_from_origin_z_quark)
+    if 'linear_grid' in calculation:
+        if calculation['linear_grid']:
+            jacobian_for_z_integration = distances_from_origin_z_quark
+
     normalization = probability_normalization_polar * probability_normalization_log
     jacobian_for_z_integration = np.squeeze(jacobian_for_z_integration)
 
     if calculation['order_of_BK'] == 'NLO' or calculation['order_of_BK'] == 'NLO_LOcut':
         distances_from_origin_w_quark = np.linalg.norm(calculation['quark_positions']['w'], axis=1, keepdims=True)
         jacobian_for_wz_integration = jacobian(distances_from_origin_z_quark) * jacobian(distances_from_origin_w_quark)
+        if 'linear_grid' in calculation:
+            if calculation['linear_grid']:
+                jacobian_for_wz_integration = distances_from_origin_z_quark * distances_from_origin_w_quark
         jacobian_for_wz_integration = np.squeeze(jacobian_for_wz_integration)
 
         evaluated_points_for_z_integration, evaluated_points_for_wz_integration = integrand(calculation)
@@ -233,7 +277,6 @@ def integrate_Simpson(calculation, x, y):
         integral_over_w = simps(simps(integrand_simps_over_wz, integrand_angles)*integrand_radii, integrand_radii)
         integral_over_wz = simps(simps(integral_over_w, integrand_angles)*integrand_radii, integrand_radii)
         return integral_over_z + integral_over_wz
-
     else:
         integrand_simps = integrand(calculation)
         integrand_simps = integrand_simps.reshape((len(integrand_radii), len(integrand_angles)))

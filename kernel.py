@@ -7,7 +7,7 @@ from scipy.special import i1, j1
 #     # This function is used to calculate the Ka kernel in the BK equation.
 #     var = calculation['variables_for_N']
 #     # TODO: Check with Honza that all couplings are at the right scale!
-#     fraction_first = alpha_s_squared(np.array([var['xy']['rsq']]), alpha_fixed=True) * c.Nc**2 / (8. * np.pi**3)
+#     fraction_first = alpha_s_squared(np.array([var['xy']['rsq']]), alpha_fixed=False) * c.Nc**2 / (8. * np.pi**3)
 #     fraction_second = var['xy']['rsq'] / (var['zx']['rsq'] * var['zy']['rsq'])
 #     bracket = 67. / 9. - (np.pi ** 2 / 3.) - 10. * c.nf / (9. * c.Nc) - 2. * np.log(var['zx']['rsq'] / var['xy']['rsq']) * np.log(var['zy']['rsq'] / var['xy']['rsq'])
 #
@@ -35,20 +35,26 @@ def K1(calculation):
     Lrxz_rxy = np.log(var['zx']['rsq']/var['xy']['rsq'])
     Lrzy_rxy = np.log(var['zy']['rsq']/var['xy']['rsq'])
     rho_sq = Lrxz_rxy * Lrzy_rxy
-    alpha_bar = np.zeros(len(rho_sq)) + c.Nc/np.pi * alpha_s(np.array([var['xy']['rsq']]), alpha_fixed=True)
+    alpha_bar = np.zeros(len(rho_sq)) + c.Nc/np.pi * alpha_s(np.array([var['xy']['rsq']]), alpha_fixed=False)
 
     kdla_array = kdla_with_limits(alpha_bar, rho_sq)
-    kernel = Krc(calculation, alpha_fixed=True)*Kstl(calculation)*kdla_array - Ksub(calculation) + Kfin(calculation)
+    kernel = Krc(calculation, alpha_fixed=False)*Kstl(calculation)*kdla_array - Ksub(calculation) + Kfin(calculation)
+    # DEBUG
+    # kernel = Kci(calculation)
+    # EDEBUG
 
     # CONVERGENCE CONDITION - ZERO OUT INFINITELY SMALL rs
-    zero_terms = (var['zx']['rsq'] ==  0.) | (var['zy']['rsq'] == 0.) | (var['wx']['rsq'] == 0.) | (var['wy']['rsq'] == 0.)
+    zero_terms = (var['zx']['rsq'] ==  0.) | (var['zy']['rsq'] == 0.)
     kernel[zero_terms] = 0.
+
+    # CONVERGENCE CONDITION - CUT VALUES OF KERNEL ABOVE 10**14
+    # kernel[kernel>10**14] = 0.
     return kernel
 
 def Kfin(calculation):
     # This function is used to calculate the Kfin kernel in the BK equation.
     var = calculation['variables_for_N']
-    fraction_first = alpha_s_bar_squared(np.array([var['xy']['rsq']]), alpha_fixed=True) / (8. * np.pi)
+    fraction_first = alpha_s_bar_squared(np.array([var['xy']['rsq']]), alpha_fixed=False) / (8. * np.pi)
     fraction_second = var['xy']['rsq'] / (var['zx']['rsq'] * var['zy']['rsq'])
     bracket = 67. / 9. - (np.pi ** 2 / 3.) - 10. * c.nf / (9. * c.Nc)
     kernel = fraction_first * fraction_second * bracket
@@ -58,13 +64,13 @@ def Kfin(calculation):
 def Ksub(calculation):
     # This function is used to calculate the Kfin kernel in the BK equation.
     var = calculation['variables_for_N']
-    fraction_first = alpha_s_bar(np.array([var['xy']['rsq']]), alpha_fixed=True) / (2. * np.pi)
+    fraction_first = alpha_s_bar(np.array([var['xy']['rsq']]), alpha_fixed=False) / (2. * np.pi)
     fraction_second = var['xy']['rsq'] / (var['zx']['rsq'] * var['zy']['rsq'])
 
     r_zy_zx = np.c_[var['zy']['rsq'], var['zx']['rsq']]
     min_zy_zx = np.min(r_zy_zx, axis=1)
 
-    bracket = -alpha_s_bar(np.array([var['xy']['rsq']]), alpha_fixed=True) * c.A1*np.abs(np.log((c.C_sub*var['xy']['rsq'])/(min_zy_zx)))
+    bracket = -alpha_s_bar(np.array([var['xy']['rsq']]), alpha_fixed=False) * c.A1*np.abs(np.log((c.C_sub*var['xy']['rsq'])/(min_zy_zx)))
     kernel = fraction_first * fraction_second * bracket
     return kernel
 
@@ -76,7 +82,7 @@ def Kstl(calculation):
     r_zy_zx = np.c_[var['zy']['rsq'], var['zx']['rsq']]
     min_zy_zx = np.min(r_zy_zx, axis=1)
 
-    bracket = -alpha_s_bar(np.array([var['xy']['rsq']]), alpha_fixed=True) * c.A1*np.abs(np.log((c.C_sub*var['xy']['rsq'])/(min_zy_zx)))
+    bracket = -alpha_s_bar(np.array([var['xy']['rsq']]), alpha_fixed=False) * c.A1*np.abs(np.log((c.C_sub*var['xy']['rsq'])/(min_zy_zx)))
     kernel = np.exp(bracket)
     return kernel
 
@@ -99,46 +105,46 @@ def replace_problematic_terms(problematic_terms_bool, problematic_values, not_pr
 
 def Kb(calculation):
     var = calculation['variables_for_N']
-    fraction = alpha_s_squared(np.array([var['xy']['rsq']]), alpha_fixed=True) * c.Nc**2/(8. * np.pi**4)
-    in_front_of_bracket = -2./var['wz']['rsq']**2
-    bracket_first_up = var['zx']['rsq']*var['wy']['rsq'] + var['wx']['rsq']*var['zy']['rsq'] - 4.*var['xy']['rsq']*var['wz']['rsq']
-
-    bracket_first_down = var['wz']['rsq']**2 * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'])
-
-    problematic_terms_bool = var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'] < 10**-40
-    not_problematic_terms_bool = np.invert(problematic_terms_bool)
-
-
-    problematic_values = (bracket_first_up/var['wz']['rsq']**2)[problematic_terms_bool]
-    not_problematic_values = bracket_first_up[not_problematic_terms_bool]/bracket_first_down[not_problematic_terms_bool]
-    bracket_first = replace_problematic_terms(problematic_terms_bool, problematic_values, not_problematic_values)
-
-    # Ask Honza; This Kernel diverges for z and w on the y axis. Then the zx = zy and wx = wy
-    #  (Only for the 2D case) How to fix this? I have rotated the integrand to miss those points.
-    # This goes wrong when zx = zy and wx = wy (both z and w are on the y axis - which I do not see; is this below Numpy's precision?)
-    # Also when zx = wx and zy = wy
-
-    bracket_second_down = (var['zx']['rsq']*var['wy']['rsq'] * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq']))
-    problematic_values = (var['xy']['rsq']**2/(var['zx']['rsq']*var['wy']['rsq']))[problematic_terms_bool]
-    not_problematic_values = (var['xy']['rsq']**2)/ bracket_second_down[not_problematic_terms_bool]
-    bracket_second = replace_problematic_terms(problematic_terms_bool, problematic_values, not_problematic_values)
-
-    bracket_third = var['xy']['rsq'] / (var['zx']['rsq']*var['wy']['rsq']*var['wz']['rsq'])
-    bracket_third[problematic_terms_bool] = 0.
-    bracket = bracket_first + bracket_second + bracket_third
-
-    log_term = np.ones(len(bracket))
-    log_term[not_problematic_terms_bool] = np.log((var['zx']['rsq'] * var['wy']['rsq'])[not_problematic_terms_bool] / (var['wx']['rsq'] * var['zy']['rsq'])[not_problematic_terms_bool])
-    kernel = fraction * (in_front_of_bracket + bracket * log_term)
+    # fraction = alpha_s_squared(np.array([var['xy']['rsq']]), alpha_fixed=False) * c.Nc**2/(8. * np.pi**4)
+    # in_front_of_bracket = -2./var['wz']['rsq']**2
+    # bracket_first_up = var['zx']['rsq']*var['wy']['rsq'] + var['wx']['rsq']*var['zy']['rsq'] - 4.*var['xy']['rsq']*var['wz']['rsq']
+    #
+    # bracket_first_down = var['wz']['rsq']**2 * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'])
+    #
+    # problematic_terms_bool = var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'] < 10**-40
+    # not_problematic_terms_bool = np.invert(problematic_terms_bool)
+    #
+    #
+    # problematic_values = (bracket_first_up/(var['wz']['rsq']**2 * var['zx']['rsq']*var['wy']['rsq']))[problematic_terms_bool]
+    # not_problematic_values = bracket_first_up[not_problematic_terms_bool]/bracket_first_down[not_problematic_terms_bool]
+    # bracket_first = replace_problematic_terms(problematic_terms_bool, problematic_values, not_problematic_values)
+    #
+    # # Ask Honza; This Kernel diverges for z and w on the y axis. Then the zx = zy and wx = wy
+    # #  (Only for the 2D case) How to fix this? I have rotated the integrand to miss those points.
+    # # This goes wrong when zx = zy and wx = wy (both z and w are on the y axis - which I do not see; is this below Numpy's precision?)
+    # # Also when zx = wx and zy = wy
+    #
+    # bracket_second_down = (var['zx']['rsq']*var['wy']['rsq'] * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq']))
+    # problematic_values = (var['xy']['rsq']**2/(var['zx']['rsq']*var['wy']['rsq']*var['zx']['rsq']*var['wy']['rsq']))[problematic_terms_bool]
+    # not_problematic_values = (var['xy']['rsq']**2)/ bracket_second_down[not_problematic_terms_bool]
+    # bracket_second = replace_problematic_terms(problematic_terms_bool, problematic_values, not_problematic_values)
+    #
+    # bracket_third = var['xy']['rsq'] / (var['zx']['rsq']*var['wy']['rsq']*var['wz']['rsq'])
+    # bracket_third[problematic_terms_bool] = 0.
+    # bracket = bracket_first + bracket_second + bracket_third
+    #
+    # log_term = np.ones(len(bracket))
+    # log_term[not_problematic_terms_bool] = np.log((var['zx']['rsq'] * var['wy']['rsq'])[not_problematic_terms_bool] / (var['wx']['rsq'] * var['zy']['rsq'])[not_problematic_terms_bool])
+    # kernel = fraction * (in_front_of_bracket + bracket * log_term)
 
     # OLD VERSION OF KERNEL
-    fraction = alpha_s_squared(np.array([var['xy']['rsq']]), alpha_fixed=True) * c.Nc**2/(8. * np.pi**4)
-    in_front_of_bracket = -2./var['wz']['rsq']**2
+    fraction = alpha_s_squared(np.array([var['xy']['rsq']]), alpha_fixed=False) * c.Nc**2/(8. * np.pi**4)
+    in_front_of_bracket = -2./(var['wz']['rsq']**2 + c.epsilon)
     bracket_first_up = var['zx']['rsq']*var['wy']['rsq'] + var['wx']['rsq']*var['zy']['rsq'] - 4.*var['xy']['rsq']*var['wz']['rsq']
-    bracket_first_down = var['wz']['rsq']**2 * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'])
+    bracket_first_down = c.epsilon + var['wz']['rsq']**2 * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'])
     bracket_first = bracket_first_up/bracket_first_down
-    bracket_second = var['xy']['rsq']**2 / (var['zx']['rsq']*var['wy']['rsq'] * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq']))
-    bracket_third = var['xy']['rsq'] / (var['zx']['rsq']*var['wy']['rsq']*var['wz']['rsq'])
+    bracket_second = var['xy']['rsq']**2 / (c.epsilon + var['zx']['rsq']*var['wy']['rsq'] * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq']))
+    bracket_third = var['xy']['rsq'] / (c.epsilon + var['zx']['rsq']*var['wy']['rsq']*var['wz']['rsq'])
     bracket = bracket_first + bracket_second + bracket_third
     log_term = np.log(var['zx']['rsq'] * var['wy']['rsq'] / (var['wx']['rsq'] * var['zy']['rsq']))
     kernel = fraction * (in_front_of_bracket + bracket * log_term)
@@ -148,11 +154,11 @@ def Kb(calculation):
     #  CONVERGENCE CONDITION
     # Dasa's cutoff of the infinities
     if np.isinf(kernel).any():
+        print(100.* np.sum(np.isinf(kernel))/len(kernel) , '% of Kb Inf')
         kernel[np.isinf(kernel)] = 0.
-        # print('Kb Inf')
     if np.isnan(kernel).any():
+        print(100.* np.sum(np.isnan(kernel))/len(kernel) , '% of Kb is Nan')
         kernel[np.isnan(kernel)] = 0.
-        # print('Kb Nan')
     # Setting the whole kernel to zero when r_xy is the same as r_zy or r_zx
     # same_rxy_rzx = np.abs(var['xy']['rsq'] - var['zx']['rsq']) < 10**-10
     # same_rxy_rzy = np.abs(var['xy']['rsq'] - var['zy']['rsq']) < 10**-10
@@ -165,34 +171,37 @@ def Kb(calculation):
 
     if calculation['order_of_BK'] == 'NLO_LOcut':
         return np.zeros(len(kernel))
+    # CONVERGENCE CONDITION - CUT VALUES OF KERNEL ABOVE 10**14
+    # kernel[kernel>10**14] = 0.
+
     return kernel
 
 
 def Kf(calculation):
     var = calculation['variables_for_N']
-    fraction = alpha_s_squared(np.array([var['xy']['rsq']]), alpha_fixed=True) * c.Nc * c.nf/(8. * np.pi**4)
-    first = 2./var['wz']['rsq']**2
-    second_up = var['wx']['rsq']*var['zy']['rsq'] + var['wy']['rsq']*var['zx']['rsq'] - var['xy']['rsq']*var['wz']['rsq']
-    second_down = var['wz']['rsq']**2 * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'])
-
-    problematic_terms_bool = var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'] < 10**-40
-    not_problematic_terms_bool = np.invert(problematic_terms_bool)
-
-    # PERFORMING THE LIMIT ON THE LOG-TERM
-    problematic_values = (second_up/var['wz']['rsq']**2)[problematic_terms_bool]
-    not_problematic_values = second_up[not_problematic_terms_bool]/second_down[not_problematic_terms_bool]
-    second = replace_problematic_terms(problematic_terms_bool, problematic_values, not_problematic_values)
-
-    log_term = np.ones(len(second))
-    log_term[not_problematic_terms_bool] = np.log((var['zx']['rsq'] * var['wy']['rsq'])[not_problematic_terms_bool] / (var['wx']['rsq'] * var['zy']['rsq'])[not_problematic_terms_bool])
-
-    kernel = fraction*(first - second * log_term)
+    # fraction = alpha_s_squared(np.array([var['xy']['rsq']]), alpha_fixed=False) * c.Nc * c.nf/(8. * np.pi**4)
+    # first = 2./var['wz']['rsq']**2
+    # second_up = var['wx']['rsq']*var['zy']['rsq'] + var['wy']['rsq']*var['zx']['rsq'] - var['xy']['rsq']*var['wz']['rsq']
+    # second_down = var['wz']['rsq']**2 * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'])
+    #
+    # problematic_terms_bool = var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'] < 10**-40
+    # not_problematic_terms_bool = np.invert(problematic_terms_bool)
+    #
+    # # PERFORMING THE LIMIT ON THE LOG-TERM
+    # problematic_values = (second_up/(var['wz']['rsq']**2 * var['zx']['rsq']*var['wy']['rsq']))[problematic_terms_bool]
+    # not_problematic_values = second_up[not_problematic_terms_bool]/second_down[not_problematic_terms_bool]
+    # second = replace_problematic_terms(problematic_terms_bool, problematic_values, not_problematic_values)
+    #
+    # log_term = np.ones(len(second))
+    # log_term[not_problematic_terms_bool] = np.log((var['zx']['rsq'] * var['wy']['rsq'])[not_problematic_terms_bool] / (var['wx']['rsq'] * var['zy']['rsq'])[not_problematic_terms_bool])
+    #
+    # kernel = fraction*(first - second * log_term)
 
     # OLD KERNEL
-    fraction = alpha_s_squared(np.array([var['xy']['rsq']]), alpha_fixed=True) * c.Nc * c.nf/(8. * np.pi**4)
-    first = 2./var['wz']['rsq']**2
+    fraction = alpha_s_squared(np.array([var['xy']['rsq']]), alpha_fixed=False) * c.Nc * c.nf/(8. * np.pi**4)
+    first = 2./(var['wz']['rsq']**2 + c.epsilon)
     second_up = var['wx']['rsq']*var['zy']['rsq'] + var['wy']['rsq']*var['zx']['rsq'] - var['xy']['rsq']*var['wz']['rsq']
-    second_down = var['wz']['rsq']**2 * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'])
+    second_down = c.epsilon + var['wz']['rsq']**2 * (var['zx']['rsq']*var['wy']['rsq'] - var['wx']['rsq']*var['zy']['rsq'])
     second = second_up/second_down
     log_term = np.log(var['zx']['rsq'] * var['wy']['rsq'] / (var['wx']['rsq'] * var['zy']['rsq']))
     kernel = fraction*(first - second * log_term)
@@ -217,6 +226,9 @@ def Kf(calculation):
 
     zero_terms = (var['zx']['rsq'] ==  0.) | (var['zy']['rsq'] == 0.) | (var['wx']['rsq'] == 0.) | (var['wy']['rsq'] == 0.)
     kernel[zero_terms] = 0.
+
+    # CONVERGENCE CONDITION - CUT VALUES OF KERNEL ABOVE 10**14
+    # kernel[kernel>10**14] = 0.
 
     return kernel
 

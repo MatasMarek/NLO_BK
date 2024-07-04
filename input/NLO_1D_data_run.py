@@ -2,8 +2,6 @@ import os.path
 import shutil
 import sys
 
-import const
-
 sys.path.append('../')
 from run import run_calculation
 import numpy as np
@@ -23,21 +21,17 @@ dimensionality_of_N = 1  # r, b
 
 integration_method = 'MC'
 
-no_of_samples = 10 ** 5
-
+no_of_samples = 10 ** 7
 order_of_rk = 1
 order_of_BK = 'NLO'
-number_of_cores = 1
+number_of_cores = 26
 drop_double_log = True
 
 
-from initial_conds import MV_1D_guillermo
+from initial_conds import MV_1D
+initial_cond = MV_1D(grid, Qs0_sq=0.15, gamma=1.4, Lambda=0.1)
 
-initial_cond = MV_1D_guillermo(grid, Qs0_sq=1., gamma=1.)
-
-
-
-run_name = 'pilot_run_NLO_1D_evenmore_samples_dropdoublelog_test'
+run_name = 'NLO_1D_data_run'
 
 calculation = {
     'dimensionality_of_N': dimensionality_of_N,  # Dimensionality of N

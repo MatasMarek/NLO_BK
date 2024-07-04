@@ -10,13 +10,13 @@ import numpy as np
 import os
 
 steps_in_integrand_theta = 800
-shift = 2. * np.pi / steps_in_integrand_theta / 2.  # to avoid double counting and y-axis with z and w.
+shift = 2. * np.pi / steps_in_integrand_theta
 
 grid = {
     'grid_in_Y': np.linspace(0., 10., 101),
     'grid_in_r': np.logspace(-7., 2., 251),
     'grid_in_integrand_radius': np.logspace(-7., 2., 100000),
-    'grid_in_integrand_angle': np.linspace(-np.pi + shift, np.pi - shift, steps_in_integrand_theta),
+    'grid_in_integrand_angle': np.linspace(-np.pi , np.pi - shift, steps_in_integrand_theta),
 }
 
 dimensionality_of_N = 1  # r, b
@@ -37,7 +37,7 @@ initial_cond = MV_1D_guillermo(grid, Qs0_sq=1., gamma=1.)
 
 
 
-run_name = 'pilot_run_NLO_1D_evenmore_samples_dropdoublelog_test'
+run_name = 'pilot_run_NLO_1D_evenmore_samples_dropdoublelog_test_divergent_points'
 
 calculation = {
     'dimensionality_of_N': dimensionality_of_N,  # Dimensionality of N

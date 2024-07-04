@@ -96,6 +96,10 @@ def make_step_in_r(r_ind, calculation):
                             y = np.array([r / 2. * np.cos(theta) + b * np.cos(phi),
                                            r / 2. * np.sin(theta) + b * np.sin(phi)])
                             N_to_add_r_ind[b_ind][theta_ind][phi_ind] = runge_kutta(calculation, x, y)
+
+    # if calculation['grid']['grid_in_r'][r_ind] >= 10**-2:
+    #     if abs(N_to_add_r_ind[0] / N_to_add_r_ind[1] - 1) > 10**-4 or abs(N_to_add_r_ind[0] / N_to_add_r_ind[2] - 1) > 10**-4:
+    #         print('Here be trouble r_ind', r_ind, 'N_to_add_r_ind', N_to_add_r_ind)
     return N_to_add_r_ind
 
 
@@ -113,6 +117,19 @@ def make_step(calculation):
         for r_ind in range(len(grid_in_r)):
             N_to_add_r_ind = make_step_in_r(r_ind, calculation)
             calculation['N_to_add'][r_ind] = N_to_add_r_ind
+
+    # CONVERGENCE CONDITION - if N_to_add jumps too much, I zero it
+    condition_one = np.abs(calculation['N_to_add']/calculation['N'][y_ind]) > 100.
+    condition_two = calculation['N'][y_ind] > 0.
+    condition_three = np.abs(calculation['N_to_add']) > 0.04
+    # combine the conditions
+    N_to_add_to_zero_out = (condition_one & condition_two) | condition_three
+    calculation['N_to_add'][N_to_add_to_zero_out] = 0.
+    # log it
+    print('max(N_to_add)', np.max(calculation['N_to_add']), 'max(N)', np.max(calculation['N'][y_ind]), 'max(N/N_to_add)', np.max(calculation['N_to_add']))
+    if np.sum(N_to_add_to_zero_out) > 0:
+        print('N_to_add jumps too much at y_ind', y_ind, 'r_inds', np.where(N_to_add_to_zero_out)[0], 'for', np.sum(N_to_add_to_zero_out), 'points')
+    # CONVERGENCE CONDITION
 
     calculation['N'][y_ind] = calculation['N'][y_ind - 1] + calculation['N_to_add']
 

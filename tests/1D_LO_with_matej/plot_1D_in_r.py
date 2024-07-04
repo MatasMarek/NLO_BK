@@ -15,7 +15,7 @@ def plot_1d_matej_check():
     lo_y1 = np.loadtxt('data/Y=01.00.csv', delimiter=',')
     lo_y10 = np.loadtxt('data/Y=10.00.csv', delimiter=',')
 
-    for run_name in ['pilot_run_LO_1D', 'pilot_run_NLO_LOcut_1D_evenmore_samples']:
+    for run_name in ['NLO_1D_data_run']:
 
         calculation = load_calculation(run_name)
         for y_ind in range(len(calculation['grid']['grid_in_Y'])):

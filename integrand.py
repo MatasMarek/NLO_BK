@@ -44,7 +44,19 @@ def integrand_NLO(calculation):
     second_term = Kb(calculation) * (Ns['wy'] + Ns['wz'] - Ns['zy'] - Ns['zx'] * Ns['wz'] - Ns['zx'] * Ns['wy'] - Ns['wz'] * Ns['wy'] + Ns['zx'] * Ns['zy'] + Ns['zx'] * Ns['wz'] * Ns['wy'])
     third_term = Kf(calculation) * (Ns['wx'] - Ns['zx'] - Ns['zy'] * Ns['wx'] + Ns['zx'] * Ns['zy'])
 
-    return first_term, second_term + third_term  # First term is integrated just over z, the other two over w
+    if 'heikki_cutoff' in calculation:
+        # Heikki's cutoff - the integrand is zero for any of the rs > heikki_cutoff
+        cutoff = calculation['heikki_cutoff']
+        var = calculation['variables_for_N']
+        values_to_be_zeroed = (var['zx']['r'] > cutoff) | (var['zy']['r'] > cutoff) | (var['wx']['r'] > cutoff) | (var['wy']['r'] > cutoff)
+        first_term[values_to_be_zeroed] = 0.
+        second_term[values_to_be_zeroed] = 0.
+        third_term[values_to_be_zeroed] = 0.
+    # DEBUG
+    # return first_term, third_term  # First term is integrated just over z, the other two over w
+
+    # DEBUG
+    return first_term, (second_term + third_term)  # First term is integrated just over z, the other two over w
 
 
 

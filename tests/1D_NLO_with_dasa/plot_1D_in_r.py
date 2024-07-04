@@ -28,7 +28,10 @@ def plot_1d_dasa_check():
     # for run_name in ['pilot_run_NLO_1D_evenmore_samples_dropdoublelog_guillermo_parallel']:
     # for run_name in ['pilot_run_NLO_1D_evenmore_samples_dropdoublelog', 'pilot_run_NLO_1D_evenevenmore_samples_dropdoublelog', 'pilot_run_NLO_1D_evenmore_samples_dropdoublelog_more_angles', 'pilot_run_NLO_1D_evenmore_samples_dropdoublelog_less_angles', 'pilot_run_NLO_1D_evenmore_samples_dropdoublelog_more_r', 'pilot_run_NLO_1D_evenmore_samples_dropdoublelog_less_r', 'pilot_run_NLO_1D_evenmore_samples_dropdoublelog_less_radius', 'pilot_run_NLO_1D_evenmore_samples_dropdoublelog_more_radius', 'pilot_run_NLO_1D_evenmore_samples_dropdoublelog_lower_r']:
     # for run_name in ['pilot_run_NLO_1D_evenmore_samples_dropdoublelog_test', 'pilot_run_NLO_1D_evenmore_samples_dropdoublelog_test_dasa']:
-    for run_name in ['pilot_run_NLO_1D_evenmore_samples_dropdoublelog_test_eta', 'pilot_run_NLO_1D_evenmore_samples_dropdoublelog_test']:
+    # for run_name in ['pilot_run_NLO_1D_evenmore_samples_dropdoublelog_test_eta', 'pilot_run_NLO_1D_evenmore_samples_dropdoublelog_test']:
+    for run_name in ['pilot_run_NLO_1D_evenmore_samples_dropdoublelog_test_lin']:
+    # for run_name in ['pilot_run_NLO_1D_evenmore_samples_dropdoublelog_test']:
+    # for run_name in ['pilot_run_NLO_1D_evenevenmore_samples_parallel', 'pilot_run_NLO_1D_evenevenmore_samples']:
 
         calculation = load_calculation(run_name)
         for y_ind in range(len(calculation['grid']['grid_in_Y'])):

@@ -1,38 +1,38 @@
-import os.path
 import shutil
+import sys
+
+sys.path.append('../')
+
 from run import run_calculation
 import numpy as np
 import os
 
+steps_in_integrand_theta = 800
+shift = 2. * np.pi / steps_in_integrand_theta / 2.  # to avoid double counting and y-axis with z and w.
 
-steps_in_integrand_theta = 40
-shift = 2.*np.pi/steps_in_integrand_theta/2.  # to avoid double counting and y-axis with z and w.
 grid = {
-    'grid_in_Y': np.linspace(0., 3., 61),
-    'grid_in_r': np.logspace(-6., 2., 50),
-    'grid_in_b': np.logspace(-2., 2., 30),
-    'grid_in_integrand_radius': np.logspace(-5., 2., 20000),
-    'grid_in_integrand_angle': np.linspace(-np.pi + shift, np.pi - shift, steps_in_integrand_theta),  # not to include 2pi to avoid double counting
+    'grid_in_Y': np.linspace(0., 30., 301),
+    'grid_in_r': np.logspace(-4., 2., 251),
+    'grid_in_b': np.logspace(-2., 0.8, 10),
+    'grid_in_integrand_radius': np.logspace(-7., 2., 100000),
+    'grid_in_integrand_angle': np.linspace(-np.pi + shift, np.pi - shift, steps_in_integrand_theta),
+    # not to include 2pi to avoid double counting
 }
 
 
 dimensionality_of_N = 2  # r, b
 
 integration_method = 'MC'
-no_of_samples = 10**6
-
-# DEBUG
-no_of_samples = 10**6
-# EDEBUG
+no_of_samples = 10**7
 
 order_of_rk = 1
 order_of_BK = 'NLO'
-number_of_cores = 3
+number_of_cores = 64
 
 
 from initial_conds import mareks_N as cond
 initial_cond = cond(grid, dimensionality_of_N)
-run_name = 'pilot_run_NLO_2D'
+run_name = 'NLO_2D'
 
 
 calculation = {

@@ -11,7 +11,7 @@ steps_in_integrand_theta = 200
 shift = 2.*np.pi/steps_in_integrand_theta/2.  # to avoid double counting and y-axis with z and w.
 
 steps_in_grid_theta = 10
-theta_shift = 2.*np.pi/steps_in_integrand_theta/2.  # to avoid double counting and y-axis with z and w.
+theta_shift = 2.*np.pi/steps_in_grid_theta/2.  # to avoid double counting and y-axis with z and w.
 
 grid = {
     'grid_in_Y': np.linspace(0., 10., 201),
